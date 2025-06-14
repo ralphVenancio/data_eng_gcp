@@ -102,3 +102,74 @@ output "dataproc_cluster_name" {
   description = "O nome do cluster do Dataproc."
   value       = google_dataproc_cluster.this.name
 }
+
+# ... Configuração para o ambiente Cloud Composer
+
+resource "google_composer_environment" this {
+  name    = var.composer_env_name
+  region  = var.location
+
+  config {
+    
+    software_config {
+      image_version = var.composer_image_version
+    }
+
+    workloads_config {
+      scheduler {
+        cpu        = 0.5
+        memory_gb  = 1.875
+        storage_gb = 1
+        count      = 1
+      }
+      web_server {
+        cpu        = 0.5
+        memory_gb  = 1.875
+        storage_gb = 1
+      }
+      worker {
+        cpu = 0.5
+        memory_gb  = 1.875
+        storage_gb = 1
+        min_count  = 1
+        max_count  = 3
+      }
+    }
+
+    environment_size = "ENVIRONMENT_SIZE_SMALL"
+
+    node_config {
+      network         = google_compute_network.this.id
+      subnetwork      = google_compute_subnetwork.this.id
+      service_account = google_service_account.this.name
+    }
+
+  }
+}
+
+# ... Configurações de rede ... 
+
+resource "google_compute_network" this {
+  name = var.compute_net_name
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" this {
+  name = var.compute_subnet_name
+  ip_cidr_range = "10.2.0.0/16"
+  region = var.location
+  network = google_compute_network.this.id
+}
+
+# ... Configurações de permissão
+
+resource "google_service_account" this {
+  account_id   = "composer-env-account"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = var.project_id
+  role    = "roles/composer.worker"
+  member  = "serviceAccount:${google_service_account.this.email}"
+}

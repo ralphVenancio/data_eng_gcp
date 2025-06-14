@@ -75,3 +75,31 @@ variable "num_preemptible_workers" {
   type        = number
   default     = 0 # Comece com 0 para estabilidade, adicione para economia
 }
+
+# Variáveis Cloud Composer
+
+variable "composer_env_name" {
+  description = "Nome do ambiente do Cloud Composer"
+  type        = string
+  default     = "composer-ralph-test"
+}
+
+variable "composer_image_version" {
+  description = "Versão da imagem do Cloud Composer"
+  type        = string
+  default     = "composer-2.13.4-airflow-2.10.5"
+}
+
+# Variáveis de rede
+
+variable "compute_net_name" {
+  description = "Nome do recurso de rede do Google"
+  type        = string
+  default     = "composer-test-network3"
+}
+
+variable "compute_subnet_name" {
+  description = "Nome do recurso de subrede"
+  type        = string
+  default     = "composer-test-subnetwork"
+}
